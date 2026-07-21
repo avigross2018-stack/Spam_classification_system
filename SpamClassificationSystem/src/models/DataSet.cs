@@ -17,7 +17,7 @@ namespace SpamClassificationSystem.src.models
             _rows = rows;
             _target = target;
         }
-
+        
         public DataSet(){}
 
         public List<string> GetLabels()
