@@ -11,13 +11,21 @@ namespace SpamClassificationSystem.src.models
         private List<Dictionary<string, string>> _rows {get; set;}
         private List<string> _target { get; set;}
 
-        DataSet(List<string> labels, List<Dictionary<string, string>> rows, List<string> target)
+        public DataSet(List<string> labels, List<Dictionary<string, string>> rows, List<string> target)
         {
             _labels = labels;
             _rows = rows;
             _target = target;
         }
+        public DataSet() { }
 
-        DataSet(){}
+        public List<string> GetLabels()
+            => _labels;
+
+        public List<Dictionary<string, string>> GetRows()
+            => _rows;
+
+        public List<string> GetTarget()
+            => _target;
     }
 }
