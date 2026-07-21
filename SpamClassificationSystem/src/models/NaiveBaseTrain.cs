@@ -22,18 +22,18 @@ namespace SpamClassificationSystem.src.models
             string targetColumn = _data.GetLabels().Last();     //hold the last labelName (the target label name)
             
             
-            List<string> distinctTarget =   // filter distinctTarget from target list. 
+            List<string> labels =   // filter distinctTarget from target list. 
                 _data.GetTarget()
                     .Distinct()
                     .ToList();
             
 
             Dictionary<string,double> priors = new();
-            foreach (string target in distinctTarget)
+            foreach (string label in labels)
             {
-                int count = _data.GetTarget().Count(t => t == target);  //count how many every target exist.
+                int count = _data.GetTarget().Count(t => t == label);  //count how many every target exist.
 
-                priors[target] = (double)count / numberOfRows;
+                priors[label] = (double)count / numberOfRows;
             }
 
 
@@ -44,10 +44,10 @@ namespace SpamClassificationSystem.src.models
             Dictionary<(string Label,
                         string Feature), double> unseen = new();                       
 
-            foreach (var target in distinctTarget)
+            foreach (var label in labels)
             {
                 var targetRows = _data.GetRows()    //getting all rows for every target
-                    .Where(r => r[targetColumn] == target)
+                    .Where(r => r[targetColumn] == label)
                     .ToList();
 
                 foreach(string feature in _data.GetLabels())     // go over every column except the target column
@@ -70,15 +70,15 @@ namespace SpamClassificationSystem.src.models
                     
                         double probability = (double)(match +1) / (targetRows.Count + amountDistinctValues);    //calculate the probability
 
-                        cond[(target, feature, value)] = probability;
+                        cond[(label, feature, value)] = probability;
                     }
 
-                    unseen[(target, feature)] = 1.0 / (targetRows.Count + amountDistinctValues);    //calculate the probability for unseen data
+                    unseen[(label, feature)] = 1.0 / (targetRows.Count + amountDistinctValues);    //calculate the probability for unseen data
                 }
 
-                
+                    
             }
-            return new NavieBaseModel(distinctTarget, priors, cond, unseen);
+            return new NavieBaseModel(labels, priors, cond, unseen);
         }
     }
 }
