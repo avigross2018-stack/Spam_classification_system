@@ -39,8 +39,6 @@ namespace SpamClassificationSystem
             PathManager path = new PathManager();
             //test 
             test_func(path.getInputPath("weather_play.csv"));
-            
-            
         }
     }
 }

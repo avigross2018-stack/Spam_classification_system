@@ -76,8 +76,9 @@ namespace SpamClassificationSystem.src.models
                     unseen[(target, feature)] = 1.0 / (targetRows.Count + amountDistinctValues);    //calculate the probability for unseen data
                 }
 
-                return new NavieBaseModel(distinctTarget, priors, cond, unseen);
-            } 
+                
+            }
+            return new NavieBaseModel(distinctTarget, priors, cond, unseen);
         }
     }
 }
