@@ -7,6 +7,17 @@ namespace SpamClassificationSystem.src.models
 {
     public class DataSet
     {
-        
+        private List<string> _labels { get; set;}
+        private Dictionary<string, string> _rows {get; set;}
+        private List<string> _target { get; set;}
+
+        DataSet(List<string> labels, Dictionary<string, string> rows, List<string> target)
+        {
+            _labels = labels;
+            _rows = rows;
+            _target = target;
+        }
+
+        DataSet(){}
     }
 }
