@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace SpamClassificationSystem.src.interfaces
 {
-    //public interface IWriter
-    //{
-    //    public void Write(string destinationPath, List<Sample> data, List<string> headers);
-    //}
+    public interface IWriter
+    {
+       public void Write();
+    }
 }
