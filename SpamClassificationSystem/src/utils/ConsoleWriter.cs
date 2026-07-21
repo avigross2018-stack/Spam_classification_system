@@ -17,23 +17,14 @@ namespace SpamClassificationSystem.src.utils
         }
 
         // Prints all input rows and their predictions to the console.
-        public void WritePredictions(DataSet inputData,List<string> predictions)
+        public void WritePrediction(Dictionary<string, string> row,List<string> headers,string prediction)
         {
-            List<Dictionary<string, string>> rows = inputData.GetRows();
-
-            List<string> headers = inputData.GetLabels();
-
-            if (rows.Count != predictions.Count)
+            foreach (string header in headers)
             {
-                throw new ArgumentException("The number of predictions must match the number of rows.");
+                Console.WriteLine($"{header}: {row[header]}");
             }
 
-            for (int i = 0; i < rows.Count; i++)
-            {
-                string values = string.Join(_delimiter,headers.Select(header => rows[i][header]));
-
-                Console.WriteLine($"Row {i + 1}: {values} -> {predictions[i]}");
-            }
+            Console.WriteLine($"Prediction: {prediction}");
         }
     }
 }

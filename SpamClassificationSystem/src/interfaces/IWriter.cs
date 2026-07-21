@@ -8,6 +8,6 @@ namespace SpamClassificationSystem.src.interfaces
 {
     public interface IWriter
     {
-        void WritePredictions(DataSet inputData,List<string> predictions);
+        public void WritePrediction(Dictionary<string, string> row, List<string> headers, string prediction);
     }
 }

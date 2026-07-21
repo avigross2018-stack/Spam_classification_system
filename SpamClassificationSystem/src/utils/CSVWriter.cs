@@ -1,5 +1,4 @@
 using SpamClassificationSystem.src.interfaces;
-using SpamClassificationSystem.src.models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,11 +10,10 @@ namespace SpamClassificationSystem.src.utils
     {
         private readonly string _path;
         private readonly char _delimiter;
+        private bool _headerWasWritten;
 
         // Receives the output file path and the CSV delimiter.
-        public CSVWriter(
-            string path,
-            char delimiter = ',')
+        public CSVWriter(string path, char delimiter = ',')
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -26,45 +24,38 @@ namespace SpamClassificationSystem.src.utils
 
             _path = path;
             _delimiter = delimiter;
+            _headerWasWritten = false;
         }
 
-        // Writes all input rows and their predictions to a CSV file.
-        public void WritePredictions(
-            DataSet inputData,
-            List<string> predictions)
+        // Writes one input row and its prediction to the CSV file.
+        public void WritePrediction(
+            Dictionary<string, string> row,
+            List<string> headers,
+            string prediction)
         {
-            List<Dictionary<string, string>> rows =
-                inputData.GetRows();
-
-            List<string> headers =
-                inputData.GetLabels();
-
-            if (rows.Count != predictions.Count)
+            if (!_headerWasWritten)
             {
-                throw new ArgumentException(
-                    "The number of predictions must match the number of rows.");
+                string headerLine = CreateHeaderLine(headers);
+
+                File.WriteAllText(
+                    _path,
+                    headerLine + Environment.NewLine);
+
+                _headerWasWritten = true;
             }
 
-            List<string> outputLines = new();
+            string resultLine = CreateResultLine(
+                headers,
+                row,
+                prediction);
 
-            outputLines.Add(CreateHeaderLine(headers));
-
-            for (int i = 0; i < rows.Count; i++)
-            {
-                string line = CreateResultLine(
-                    headers,
-                    rows[i],
-                    predictions[i]);
-
-                outputLines.Add(line);
-            }
-
-            File.WriteAllLines(_path, outputLines);
+            File.AppendAllText(
+                _path,
+                resultLine + Environment.NewLine);
         }
 
-        // Creates the CSV header line.
-        private string CreateHeaderLine(
-            List<string> headers)
+        // Creates the CSV header line and adds the Prediction column.
+        private string CreateHeaderLine(List<string> headers)
         {
             List<string> outputHeaders = new(headers);
 
@@ -75,7 +66,7 @@ namespace SpamClassificationSystem.src.utils
                 outputHeaders);
         }
 
-        // Creates one CSV row with the prediction.
+        // Creates one CSV row containing the input values and prediction.
         private string CreateResultLine(
             List<string> headers,
             Dictionary<string, string> row,
