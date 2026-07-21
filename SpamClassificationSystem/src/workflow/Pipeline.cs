@@ -24,9 +24,38 @@ namespace SpamClassificationSystem.src.workflow
 
         public void RunBatch(string trainPath)
         {
-            DataSet dataSet = Reader.Read(trainPath);
-            NavieBaseModel navieBaseModel = Trainer.Train();
+            System.Console.WriteLine("Reading");
+            DataSet data = Reader.Read(trainPath);
+
+            NavieBaseModel model = Trainer.Train(data);
+
+            NaiveBasePredictor predictor = new(model);
             
+            Dictionary<string, string> sample = UserEnterData(data);
+
+            string result = predictor.Predict(sample);
+
+            System.Console.WriteLine(result);
+            
+        }
+
+        public Dictionary<string, string> UserEnterData(DataSet dataSet)
+        {
+            Dictionary<string, string> sample = new();
+            List<string> tags = dataSet.GetLabels();    //hold all column names
+            string lastRow = tags[^1];      //hold last column name
+
+            foreach(string tag in tags)
+            {
+                if(tag == lastRow)
+                    continue;
+                
+                System.Console.WriteLine($"Enter {tag}:");
+                string userInput = Console.ReadLine();
+                sample.Add(tag, char.ToUpper(userInput[0]) + userInput[1..]);
+            }
+
+            return sample;
         }
     }
 }

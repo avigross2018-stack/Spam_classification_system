@@ -8,6 +8,6 @@ namespace SpamClassificationSystem.src.interfaces
 {
     public interface ITrainer
     {
-        public NavieBaseModel Train();
+        public NavieBaseModel Train(DataSet dataSet);
     }
 }
