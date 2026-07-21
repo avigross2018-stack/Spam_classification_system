@@ -1,3 +1,4 @@
+using SpamClassificationSystem.src.models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,6 @@ namespace SpamClassificationSystem.src.interfaces
 {
     public interface IWriter
     {
-       public void Write();
+        public void WritePrediction(Dictionary<string, string> row, List<string> headers, string prediction);
     }
 }
