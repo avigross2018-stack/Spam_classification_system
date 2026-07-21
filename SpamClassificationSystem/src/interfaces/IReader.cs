@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace SpamClassificationSystem.src.interfaces
 {
-    public interface IReader
+    public interface ICsvReader
     {
-        
+        DataSet Read(string path);
     }
 }
