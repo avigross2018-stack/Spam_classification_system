@@ -53,7 +53,6 @@ namespace SpamClassificationSystem.src.utils
 
             List<string> targets = rows
                 .Select(row => row[targetColumn])
-                .Distinct()
                 .ToList();
 
             return new DataSet(headers, rows, targets);
