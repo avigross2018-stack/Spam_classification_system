@@ -18,9 +18,11 @@ namespace SpamClassificationSystem
             PathManager path = new PathManager();
             string filePath = path.getInputPath("Play_Tennis_Train.csv");
 
+
+            IWriter butchWriter = new ConsoleWriter();
             Pipeline pipeline = new Pipeline(reader, trainer);
 
-            pipeline.RunBatch(filePath);
+            pipeline.RunBatch(filePath, butchWriter);
         }
     }
 }

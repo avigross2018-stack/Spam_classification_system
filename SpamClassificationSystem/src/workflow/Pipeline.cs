@@ -12,20 +12,21 @@ namespace SpamClassificationSystem.src.workflow
     {
         public IReader Reader{ get; }
         public ITrainer Trainer{ get; }
-        public IWriter Writer{ get; }
 
 
         public Pipeline(IReader reader, ITrainer trainer)
         {
             Reader = reader;
             Trainer = trainer;
-            
         }
 
-        public void RunBatch(string trainPath)
+        public void RunBatch(string trainPath, IWriter writer)
         {
             System.Console.WriteLine("Reading");
             DataSet data = Reader.Read(trainPath);
+            List<string> headers = data.GetLabels();
+            // int headersCount = headers.Count;
+            // headers.RemoveAt(headersCount);
 
             NavieBaseModel model = Trainer.Train(data);
 
@@ -35,7 +36,8 @@ namespace SpamClassificationSystem.src.workflow
 
             string result = predictor.Predict(sample);
 
-            System.Console.WriteLine(result);
+            writer.WritePrediction(sample, headers, result);
+            // System.Console.WriteLine(result);
             
         }
 
