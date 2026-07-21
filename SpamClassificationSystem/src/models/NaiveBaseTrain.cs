@@ -10,7 +10,7 @@ namespace SpamClassificationSystem.src.models
     public class NaiveBaseTrain : ITrainer
     {
         private DataSet _data;
-
+        
         public NaiveBaseTrain(DataSet data)
         {
             _data = data;
