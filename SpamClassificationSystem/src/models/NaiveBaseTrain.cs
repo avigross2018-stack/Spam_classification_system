@@ -10,7 +10,7 @@ namespace SpamClassificationSystem.src.models
     public class NaiveBaseTrain : ITrainer
     {
         private DataSet _data;
-
+        
         public NaiveBaseTrain(DataSet data)
         {
             _data = data;
@@ -76,7 +76,7 @@ namespace SpamClassificationSystem.src.models
                     unseen[(label, feature)] = 1.0 / (targetRows.Count + amountDistinctValues);    //calculate the probability for unseen data
                 }
 
-                
+                    
             }
             return new NavieBaseModel(labels, priors, cond, unseen);
         }

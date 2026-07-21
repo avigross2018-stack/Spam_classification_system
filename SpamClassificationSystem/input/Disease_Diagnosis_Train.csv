@@ -1,0 +1,11 @@
+Fever,Cough,Sore_Throat,Diagnosis
+High,Yes,Yes,Flu
+High,No,No,Cold
+Low,Yes,No,Cold
+Normal,No,No,Healthy
+High,Yes,Yes,Flu
+Normal,Yes,No,Cold
+High,No,Yes,Flu
+Normal,No,No,Healthy
+Low,No,Yes,Cold
+High,Yes,No,Flu

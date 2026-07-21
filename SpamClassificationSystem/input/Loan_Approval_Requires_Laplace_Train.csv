@@ -1,0 +1,11 @@
+Income,Credit_History,Employment,Approved
+High,Good,Employed,Yes
+Medium,Good,Employed,Yes
+Low,Good,Employed,Yes
+High,Bad,Unemployed,No
+Medium,Bad,Unemployed,No
+Low,Bad,Employed,No
+High,Unknown,Employed,Yes
+Medium,Unknown,Employed,Yes
+Low,Bad,Unemployed,No
+Medium,Good,Unemployed,Yes
