@@ -26,6 +26,8 @@ namespace SpamClassificationSystem.src.models
             ConditionalProbabilities = conditionalProbabilities;
             UnseenProbabilities = unseenProbabilities;
         }
+
+        public NavieBaseModel(){}
         // Returns the conditional probability for a specific label, feature, and value.
         // If the value was not seen during training, the method returns the unseen probability instead.
         public double GetProbability(string lebel, string feature,string value)
