@@ -9,21 +9,15 @@ namespace SpamClassificationSystem.src.models
 {
     public class NaiveBaseTrain : ITrainer
     {
-        private DataSet _data;
-        
-        public NaiveBaseTrain(DataSet data)
-        {
-            _data = data;
-        }
 
-        public NavieBaseModel Train()
+        public NavieBaseModel Train(DataSet dataSet)
         {
-            int numberOfRows = _data.GetRows().Count;   //hold number of row in the table.
-            string targetColumn = _data.GetLabels().Last();     //hold the last labelName (the target label name)
+            int numberOfRows = dataSet.GetRows().Count;   //hold number of row in the table.
+            string targetColumn = dataSet.GetLabels().Last();     //hold the last labelName (the target label name)
             
             
             List<string> labels =   // filter distinctTarget from target list. 
-                _data.GetTarget()
+                dataSet.GetTarget()
                     .Distinct()
                     .ToList();
             
@@ -31,7 +25,7 @@ namespace SpamClassificationSystem.src.models
             Dictionary<string,double> priors = new();
             foreach (string label in labels)
             {
-                int count = _data.GetTarget().Count(t => t == label);  //count how many every target exist.
+                int count = dataSet.GetTarget().Count(t => t == label);  //count how many every target exist.
 
                 priors[label] = (double)count / numberOfRows;
             }
@@ -46,16 +40,16 @@ namespace SpamClassificationSystem.src.models
 
             foreach (var label in labels)
             {
-                var targetRows = _data.GetRows()    //getting all rows for every target
+                var targetRows = dataSet.GetRows()    //getting all rows for every target
                     .Where(r => r[targetColumn] == label)
                     .ToList();
 
-                foreach(string feature in _data.GetLabels())     // go over every column except the target column
+                foreach(string feature in dataSet.GetLabels())     // go over every column except the target column
                 {
                     if(feature == targetColumn)     //Skipping the target column
                         continue;
 
-                    var distinctValues = _data.GetRows()    //all distinct values in every row
+                    var distinctValues = dataSet.GetRows()    //all distinct values in every row
                         .Select(r => r[feature])
                         .Distinct()
                         .ToList();

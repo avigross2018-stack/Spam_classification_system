@@ -10,11 +10,17 @@ namespace SpamClassificationSystem
 {
     class Program
     {
-
         static void Main(string[] args)
         {
-            CSVReader reade = new CSVReader();
+            IReader reader = new CSVReader();
+            ITrainer trainer = new NaiveBaseTrain();
+
             PathManager path = new PathManager();
+            string filePath = path.getInputPath("Play_Tennis_Train.csv");
+
+            Pipeline pipeline = new Pipeline(reader, trainer);
+
+            pipeline.RunBatch(filePath);
         }
     }
 }
