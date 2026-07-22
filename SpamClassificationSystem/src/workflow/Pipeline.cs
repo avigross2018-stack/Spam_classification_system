@@ -20,19 +20,15 @@ namespace SpamClassificationSystem.src.workflow
 
         // Interactive mode:
         // Reads values from the user and predicts one sample.
-        public void RunInteractive(
-            string trainPath,
-            IWriter writer)
+        public void RunInteractive(string trainPath,IWriter writer)
         {
             Console.WriteLine("Reading training data");
 
             DataSet trainingData = Reader.Read(trainPath);
 
-            NavieBaseModel model =
-                Trainer.Train(trainingData);
+            NavieBaseModel model = Trainer.Train(trainingData);
 
-            NaiveBasePredictor predictor =
-                new(model);
+            NaiveBasePredictor predictor = new(model);
 
             // Removes the last column because it is the target column.
             List<string> featureHeaders = trainingData
@@ -40,26 +36,17 @@ namespace SpamClassificationSystem.src.workflow
                 .Take(trainingData.GetLabels().Count - 1)
                 .ToList();
 
-            Dictionary<string, string> sample =
-                UserEnterData(featureHeaders);
+            Dictionary<string, string> sample = UserEnterData(featureHeaders);
 
-            string prediction =
-                predictor.Predict(sample);
+            string prediction =predictor.Predict(sample);
 
-            writer.WritePrediction(
-                sample,
-                featureHeaders,
-                prediction);
+            writer.WritePrediction(sample,featureHeaders,prediction);
         }
 
         // Batch mode:
         // Reads samples from an input CSV file,
         // predicts each row and sends the result to both writers.
-        public void RunBatch(
-    string trainPath,
-    string inputPath,
-    IWriter consoleWriter,
-    IWriter csvWriter)
+        public void RunBatch(string trainPath,string inputPath,IWriter consoleWriter,IWriter csvWriter)
         {
             Console.WriteLine("Reading training data");
 
@@ -83,21 +70,13 @@ namespace SpamClassificationSystem.src.workflow
             {
                 // Creates a sample containing only feature columns.
                 Dictionary<string, string> sample = featureHeaders
-                    .ToDictionary(
-                        header => header,
-                        header => inputRow[header]);
+                    .ToDictionary(header => header,header => inputRow[header]);
 
                 string prediction = predictor.Predict(sample);
 
-                consoleWriter.WritePrediction(
-                    sample,
-                    featureHeaders,
-                    prediction);
+                consoleWriter.WritePrediction(sample,featureHeaders, prediction);
 
-                csvWriter.WritePrediction(
-                    sample,
-                    featureHeaders,
-                    prediction);
+                csvWriter.WritePrediction(sample,featureHeaders,prediction);
             }
         }
 
@@ -111,20 +90,16 @@ namespace SpamClassificationSystem.src.workflow
             {
                 Console.Write($"Enter {header}: ");
 
-                string? userInput =
-                    Console.ReadLine();
+                string? userInput = Console.ReadLine();
 
                 if (string.IsNullOrWhiteSpace(userInput))
                 {
-                    throw new ArgumentException(
-                        $"{header} cannot be empty.");
+                    throw new ArgumentException($"{header} cannot be empty.");
                 }
 
                 userInput = userInput.Trim();
 
-                string formattedInput =
-                    char.ToUpper(userInput[0]) +
-                    userInput[1..].ToLower();
+                string formattedInput = char.ToUpper(userInput[0]) + userInput[1..].ToLower();
 
                 sample.Add(header, formattedInput);
             }
