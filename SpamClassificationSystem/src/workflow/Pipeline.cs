@@ -24,11 +24,11 @@ namespace SpamClassificationSystem.src.workflow
         {
             Console.WriteLine("Reading training data");
 
-            DataSet trainingData = Reader.Read(trainPath);
+            DataSet trainingData = Reader.Read(trainPath);      //Read the train file and hold a data set.
 
-            NavieBaseModel model = Trainer.Train(trainingData);
+            NavieBaseModel model = Trainer.Train(trainingData);     //Get the data set and train the model hold the Model.
 
-            NaiveBasePredictor predictor = new(model);
+            NaiveBasePredictor predictor = new(model);      //Instance of the prediction by the specific model.
 
             // Removes the last column because it is the target column.
             List<string> featureHeaders = trainingData
@@ -36,11 +36,11 @@ namespace SpamClassificationSystem.src.workflow
                 .Take(trainingData.GetLabels().Count - 1)
                 .ToList();
 
-            Dictionary<string, string> sample = UserEnterData(featureHeaders);
+            Dictionary<string, string> sample = UserEnterData(featureHeaders);      //User enter the specific data, the data held in a dictionary.
 
-            string prediction =predictor.Predict(sample);
+            string prediction =predictor.Predict(sample);       //Get the prediction by the dictionary sample.
 
-            writer.WritePrediction(sample,featureHeaders,prediction);
+            writer.WritePrediction(sample,featureHeaders,prediction);       //Print the prediction to the console.
         }
 
         // Batch mode:
@@ -50,11 +50,11 @@ namespace SpamClassificationSystem.src.workflow
         {
             Console.WriteLine("Reading training data");
 
-            DataSet trainingData = Reader.Read(trainPath);
+            DataSet trainingData = Reader.Read(trainPath);      //Read the train file and hold a data set.
 
-            NavieBaseModel model = Trainer.Train(trainingData);
+            NavieBaseModel model = Trainer.Train(trainingData);     //Get the data set and train the model hold the Model.
 
-            NaiveBasePredictor predictor = new(model);
+            NaiveBasePredictor predictor = new(model);      //Instance of the prediction by the specific model.
 
             // All training columns except the last target column.
             List<string> featureHeaders = trainingData
@@ -64,7 +64,7 @@ namespace SpamClassificationSystem.src.workflow
 
             Console.WriteLine("Reading input data");
 
-            DataSet inputData = Reader.Read(inputPath);
+            DataSet inputData = Reader.Read(inputPath);      //Read the train file and hold a data set.
 
             foreach (Dictionary<string, string> inputRow in inputData.GetRows())
             {
@@ -72,11 +72,11 @@ namespace SpamClassificationSystem.src.workflow
                 Dictionary<string, string> sample = featureHeaders
                     .ToDictionary(header => header,header => inputRow[header]);
 
-                string prediction = predictor.Predict(sample);
+                string prediction = predictor.Predict(sample);       //Get the prediction by the dictionary sample.
 
-                consoleWriter.WritePrediction(sample,featureHeaders, prediction);
+                consoleWriter.WritePrediction(sample,featureHeaders, prediction);       //Print the prediction to the console.
 
-                csvWriter.WritePrediction(sample,featureHeaders,prediction);
+                csvWriter.WritePrediction(sample,featureHeaders,prediction);       //Write the prediction to the CSV File.
             }
         }
 
