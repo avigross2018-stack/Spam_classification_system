@@ -1,0 +1,11 @@
+Performance_Rating,Completed_Training,Manager_Recommendation,Promoted
+High,Yes,Excellent,Yes
+Medium,No,Good,No
+Low,No,Good,No
+High,No,Excellent,Yes
+Medium,Yes,Good,Yes
+Low,Yes,Fair,No
+High,Yes,Good,Yes
+Medium,No,Fair,No
+Low,No,Excellent,No
+High,No,Fair,No

@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using SpamClassificationSystem.src.models;
 
 namespace SpamClassificationSystem.src.interfaces
 {
-    public interface ITrainer
+    public interface IPredictor
     {
-        public NavieBaseModel Train(DataSet dataSet);
+        public string Predict(Dictionary<string, string> sample);
     }
 }
