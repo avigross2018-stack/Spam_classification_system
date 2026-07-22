@@ -10,9 +10,8 @@ namespace SpamClassificationSystem.src.workflow
 {
     public class Pipeline
     {
-        public IReader Reader{ get; }
-        public ITrainer Trainer{ get; }
-
+        public IReader Reader { get; }
+        public ITrainer Trainer { get; }
 
         public Pipeline(IReader reader, ITrainer trainer)
         {
@@ -20,44 +19,116 @@ namespace SpamClassificationSystem.src.workflow
             Trainer = trainer;
         }
 
-        public void RunBatch(string trainPath, IWriter writer)
+        public void RunInteractive(
+            string trainPath,
+            IWriter writer)
         {
-            System.Console.WriteLine("Reading");
-            DataSet data = Reader.Read(trainPath);
-            List<string> headers = data.GetLabels();
-            // int headersCount = headers.Count;
-            // headers.RemoveAt(headersCount);
+            Console.WriteLine("Reading training data");
 
-            NavieBaseModel model = Trainer.Train(data);
+            DataSet trainingData = Reader.Read(trainPath);
 
-            NaiveBasePredictor predictor = new(model);
-            
-            Dictionary<string, string> sample = UserEnterData(data);
+            NavieBaseModel model =
+                Trainer.Train(trainingData);
 
-            string result = predictor.Predict(sample);
+            NaiveBasePredictor predictor =
+                new(model);
 
-            writer.WritePrediction(sample, headers, result);
-            // System.Console.WriteLine(result);
-            
+            List<string> featureHeaders =
+                GetFeatureHeaders(trainingData);
+
+            Dictionary<string, string> sample =
+                UserEnterData(featureHeaders);
+
+            string prediction =
+                predictor.Predict(sample);
+
+            writer.WritePrediction(
+                sample,
+                featureHeaders,
+                prediction);
         }
 
-        public Dictionary<string, string> UserEnterData(DataSet dataSet)
+        public void RunBatch(
+            string trainPath,
+            string inputPath,
+            IWriter consoleWriter,
+            IWriter csvWriter)
+        {
+            Console.WriteLine("Reading training data");
+
+            DataSet trainingData =
+                Reader.Read(trainPath);
+
+            NavieBaseModel model =
+                Trainer.Train(trainingData);
+
+            NaiveBasePredictor predictor =
+                new(model);
+
+            Console.WriteLine("Reading input data");
+
+            DataSet inputData =
+                Reader.Read(inputPath);
+
+            List<string> inputHeaders =
+                inputData.GetLabels();
+
+            foreach (Dictionary<string, string> sample
+                     in inputData.GetRows())
+            {
+                string prediction =
+                    predictor.Predict(sample);
+
+                consoleWriter.WritePrediction(
+                    sample,
+                    inputHeaders,
+                    prediction);
+
+                csvWriter.WritePrediction(
+                    sample,
+                    inputHeaders,
+                    prediction);
+            }
+        }
+
+        private List<string> GetFeatureHeaders(
+            DataSet trainingData)
+        {
+            return trainingData
+                .GetLabels()
+                .Take(trainingData.GetLabels().Count - 1)
+                .ToList();
+        }
+
+        public Dictionary<string, string> UserEnterData(
+            List<string> featureHeaders)
         {
             Dictionary<string, string> sample = new();
-            List<string> tags = dataSet.GetLabels();    //hold all column names
-            string lastRow = tags[^1];      //hold last column name
 
-            foreach(string tag in tags)
+            foreach (string header in featureHeaders)
             {
-                if(tag == lastRow)
-                    continue;
-                
-                System.Console.WriteLine($"Enter {tag}:");
-                string userInput = Console.ReadLine();
-                sample.Add(tag, char.ToUpper(userInput[0]) + userInput[1..]);
+                Console.Write($"Enter {header}: ");
+
+                string? userInput = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(userInput))
+                {
+                    throw new ArgumentException(
+                        $"{header} cannot be empty.");
+                }
+
+                sample[header] = FormatInput(userInput);
             }
 
             return sample;
+        }
+
+        private string FormatInput(string input)
+        {
+            input = input.Trim();
+
+            return char.ToUpper(input[0]) +
+                   input[1..].ToLower();
         }
     }
 }

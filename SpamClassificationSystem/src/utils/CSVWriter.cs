@@ -17,41 +17,28 @@ namespace SpamClassificationSystem.src.utils
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException(
-                    "Output path cannot be empty.",
-                    nameof(path));
+                throw new ArgumentException("Output path cannot be empty.",nameof(path));
             }
-
             _path = path;
             _delimiter = delimiter;
             _headerWasWritten = false;
         }
 
         // Writes one input row and its prediction to the CSV file.
-        public void WritePrediction(
-            Dictionary<string, string> row,
-            List<string> headers,
-            string prediction)
+        public void WritePrediction(Dictionary<string, string> row,List<string> headers, string prediction)
         {
             if (!_headerWasWritten)
             {
                 string headerLine = CreateHeaderLine(headers);
 
-                File.WriteAllText(
-                    _path,
-                    headerLine + Environment.NewLine);
+                File.WriteAllText(_path,headerLine + Environment.NewLine);
 
                 _headerWasWritten = true;
             }
 
-            string resultLine = CreateResultLine(
-                headers,
-                row,
-                prediction);
+            string resultLine = CreateResultLine(headers,row,prediction);
 
-            File.AppendAllText(
-                _path,
-                resultLine + Environment.NewLine);
+            File.AppendAllText(_path,resultLine + Environment.NewLine);
         }
 
         // Creates the CSV header line and adds the Prediction column.
@@ -61,16 +48,11 @@ namespace SpamClassificationSystem.src.utils
 
             outputHeaders.Add("Prediction");
 
-            return string.Join(
-                _delimiter,
-                outputHeaders);
+            return string.Join(_delimiter,outputHeaders);
         }
 
         // Creates one CSV row containing the input values and prediction.
-        private string CreateResultLine(
-            List<string> headers,
-            Dictionary<string, string> row,
-            string prediction)
+        private string CreateResultLine(List<string> headers,Dictionary<string, string> row,string prediction)
         {
             List<string> values = headers
                 .Select(header => row[header])
@@ -78,9 +60,7 @@ namespace SpamClassificationSystem.src.utils
 
             values.Add(prediction);
 
-            return string.Join(
-                _delimiter,
-                values);
+            return string.Join(_delimiter,values);
         }
     }
 }
