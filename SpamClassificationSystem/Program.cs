@@ -21,7 +21,7 @@ namespace SpamClassificationSystem
 
                 // Interactive mode:
                 // Receives only the training file path.
-                if (args.Length == 1)
+                if (args.Length == 1)       //Check if 1 arg given and operate the RunInteractive.
                 {
                     IWriter consoleWriter = new ConsoleWriter();
 
@@ -30,7 +30,7 @@ namespace SpamClassificationSystem
 
                 // Batch mode:
                 // Receives the training file and input file paths.
-                else if (args.Length == 2)
+                else if (args.Length == 2)      //Check if 2 args given and operate the RunBatch.
                 {
                     IWriter consoleWriter = new ConsoleWriter();
 
@@ -40,9 +40,9 @@ namespace SpamClassificationSystem
 
                     string inputFileNameWithoutExtension = Path.GetFileNameWithoutExtension(args[1]);
 
-                    string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
+                    string currentDate = DateTime.Now.ToString("yyyy-MM-dd");       //Add Date to the output file name.
 
-                    string outputFileName = $"{inputFileNameWithoutExtension}_output_{currentDate}.csv";
+                    string outputFileName = $"{inputFileNameWithoutExtension}_output_{currentDate}.csv";    //Build the output file name.
 
                     string outputPath = Path.Combine(outputDirectory,outputFileName);
 
