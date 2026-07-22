@@ -1,10 +1,9 @@
+using SpamClassificationSystem.src.interfaces;
+using SpamClassificationSystem.src.models;
+using SpamClassificationSystem.src.utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using SpamClassificationSystem.src.interfaces;
-using SpamClassificationSystem.src.models;
-using Dumpify;
 
 namespace SpamClassificationSystem.src.workflow
 {
@@ -19,6 +18,8 @@ namespace SpamClassificationSystem.src.workflow
             Trainer = trainer;
         }
 
+        // Interactive mode:
+        // Reads values from the user and predicts one sample.
         public void RunInteractive(
             string trainPath,
             IWriter writer)
@@ -33,8 +34,11 @@ namespace SpamClassificationSystem.src.workflow
             NaiveBasePredictor predictor =
                 new(model);
 
-            List<string> featureHeaders =
-                GetFeatureHeaders(trainingData);
+            // Removes the last column because it is the target column.
+            List<string> featureHeaders = trainingData
+                .GetLabels()
+                .Take(trainingData.GetLabels().Count - 1)
+                .ToList();
 
             Dictionary<string, string> sample =
                 UserEnterData(featureHeaders);
@@ -48,58 +52,56 @@ namespace SpamClassificationSystem.src.workflow
                 prediction);
         }
 
+        // Batch mode:
+        // Reads samples from an input CSV file,
+        // predicts each row and sends the result to both writers.
         public void RunBatch(
-            string trainPath,
-            string inputPath,
-            IWriter consoleWriter,
-            IWriter csvWriter)
+    string trainPath,
+    string inputPath,
+    IWriter consoleWriter,
+    IWriter csvWriter)
         {
             Console.WriteLine("Reading training data");
 
-            DataSet trainingData =
-                Reader.Read(trainPath);
+            DataSet trainingData = Reader.Read(trainPath);
 
-            NavieBaseModel model =
-                Trainer.Train(trainingData);
+            NavieBaseModel model = Trainer.Train(trainingData);
 
-            NaiveBasePredictor predictor =
-                new(model);
+            NaiveBasePredictor predictor = new(model);
+
+            // All training columns except the last target column.
+            List<string> featureHeaders = trainingData
+                .GetLabels()
+                .Take(trainingData.GetLabels().Count - 1)
+                .ToList();
 
             Console.WriteLine("Reading input data");
 
-            DataSet inputData =
-                Reader.Read(inputPath);
+            DataSet inputData = Reader.Read(inputPath);
 
-            List<string> inputHeaders =
-                inputData.GetLabels();
-
-            foreach (Dictionary<string, string> sample
-                     in inputData.GetRows())
+            foreach (Dictionary<string, string> inputRow in inputData.GetRows())
             {
-                string prediction =
-                    predictor.Predict(sample);
+                // Creates a sample containing only feature columns.
+                Dictionary<string, string> sample = featureHeaders
+                    .ToDictionary(
+                        header => header,
+                        header => inputRow[header]);
+
+                string prediction = predictor.Predict(sample);
 
                 consoleWriter.WritePrediction(
                     sample,
-                    inputHeaders,
+                    featureHeaders,
                     prediction);
 
                 csvWriter.WritePrediction(
                     sample,
-                    inputHeaders,
+                    featureHeaders,
                     prediction);
             }
         }
 
-        private List<string> GetFeatureHeaders(
-            DataSet trainingData)
-        {
-            return trainingData
-                .GetLabels()
-                .Take(trainingData.GetLabels().Count - 1)
-                .ToList();
-        }
-
+        // Reads one sample from the user.
         public Dictionary<string, string> UserEnterData(
             List<string> featureHeaders)
         {
@@ -109,7 +111,8 @@ namespace SpamClassificationSystem.src.workflow
             {
                 Console.Write($"Enter {header}: ");
 
-                string? userInput = Console.ReadLine();
+                string? userInput =
+                    Console.ReadLine();
 
                 if (string.IsNullOrWhiteSpace(userInput))
                 {
@@ -117,18 +120,16 @@ namespace SpamClassificationSystem.src.workflow
                         $"{header} cannot be empty.");
                 }
 
-                sample[header] = FormatInput(userInput);
+                userInput = userInput.Trim();
+
+                string formattedInput =
+                    char.ToUpper(userInput[0]) +
+                    userInput[1..].ToLower();
+
+                sample.Add(header, formattedInput);
             }
 
             return sample;
-        }
-
-        private string FormatInput(string input)
-        {
-            input = input.Trim();
-
-            return char.ToUpper(input[0]) +
-                   input[1..].ToLower();
         }
     }
 }
