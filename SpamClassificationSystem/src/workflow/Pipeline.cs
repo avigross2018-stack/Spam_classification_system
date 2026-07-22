@@ -1,18 +1,16 @@
+using SpamClassificationSystem.src.interfaces;
+using SpamClassificationSystem.src.models;
+using SpamClassificationSystem.src.utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using SpamClassificationSystem.src.interfaces;
-using SpamClassificationSystem.src.models;
-using Dumpify;
 
 namespace SpamClassificationSystem.src.workflow
 {
     public class Pipeline
     {
-        public IReader Reader{ get; }
-        public ITrainer Trainer{ get; }
-
+        public IReader Reader { get; }
+        public ITrainer Trainer { get; }
 
         public Pipeline(IReader reader, ITrainer trainer)
         {
@@ -20,41 +18,90 @@ namespace SpamClassificationSystem.src.workflow
             Trainer = trainer;
         }
 
-        public void RunBatch(string trainPath, IWriter writer)
+        // Interactive mode:
+        // Reads values from the user and predicts one sample.
+        public void RunInteractive(string trainPath,IWriter writer)
         {
-            System.Console.WriteLine("Reading");
-            DataSet data = Reader.Read(trainPath);
-            List<string> headers = data.GetLabels();
-            // int headersCount = headers.Count;
-            // headers.RemoveAt(headersCount);
+            Console.WriteLine("Reading training data");
 
-            NavieBaseModel model = Trainer.Train(data);
+            DataSet trainingData = Reader.Read(trainPath);
+
+            NavieBaseModel model = Trainer.Train(trainingData);
 
             NaiveBasePredictor predictor = new(model);
-            
-            Dictionary<string, string> sample = UserEnterData(data);
 
-            string result = predictor.Predict(sample);
+            // Removes the last column because it is the target column.
+            List<string> featureHeaders = trainingData
+                .GetLabels()
+                .Take(trainingData.GetLabels().Count - 1)
+                .ToList();
 
-            writer.WritePrediction(sample, headers, result);
-            // System.Console.WriteLine(result);
-            
+            Dictionary<string, string> sample = UserEnterData(featureHeaders);
+
+            string prediction =predictor.Predict(sample);
+
+            writer.WritePrediction(sample,featureHeaders,prediction);
         }
 
-        public Dictionary<string, string> UserEnterData(DataSet dataSet)
+        // Batch mode:
+        // Reads samples from an input CSV file,
+        // predicts each row and sends the result to both writers.
+        public void RunBatch(string trainPath,string inputPath,IWriter consoleWriter,IWriter csvWriter)
+        {
+            Console.WriteLine("Reading training data");
+
+            DataSet trainingData = Reader.Read(trainPath);
+
+            NavieBaseModel model = Trainer.Train(trainingData);
+
+            NaiveBasePredictor predictor = new(model);
+
+            // All training columns except the last target column.
+            List<string> featureHeaders = trainingData
+                .GetLabels()
+                .Take(trainingData.GetLabels().Count - 1)
+                .ToList();
+
+            Console.WriteLine("Reading input data");
+
+            DataSet inputData = Reader.Read(inputPath);
+
+            foreach (Dictionary<string, string> inputRow in inputData.GetRows())
+            {
+                // Creates a sample containing only feature columns.
+                Dictionary<string, string> sample = featureHeaders
+                    .ToDictionary(header => header,header => inputRow[header]);
+
+                string prediction = predictor.Predict(sample);
+
+                consoleWriter.WritePrediction(sample,featureHeaders, prediction);
+
+                csvWriter.WritePrediction(sample,featureHeaders,prediction);
+            }
+        }
+
+        // Reads one sample from the user.
+        public Dictionary<string, string> UserEnterData(
+            List<string> featureHeaders)
         {
             Dictionary<string, string> sample = new();
-            List<string> tags = dataSet.GetLabels();    //hold all column names
-            string lastRow = tags[^1];      //hold last column name
 
-            foreach(string tag in tags)
+            foreach (string header in featureHeaders)
             {
-                if(tag == lastRow)
-                    continue;
-                
-                System.Console.WriteLine($"Enter {tag}:");
-                string userInput = Console.ReadLine();
-                sample.Add(tag, char.ToUpper(userInput[0]) + userInput[1..]);
+                Console.Write($"Enter {header}: ");
+
+                string? userInput = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(userInput))
+                {
+                    throw new ArgumentException($"{header} cannot be empty.");
+                }
+
+                userInput = userInput.Trim();
+
+                string formattedInput = char.ToUpper(userInput[0]) + userInput[1..].ToLower();
+
+                sample.Add(header, formattedInput);
             }
 
             return sample;
